@@ -201,6 +201,18 @@ abstract class SwaggerBody
             return true;
         }
 
+		if (isset($schema['allOf'])) {
+			foreach ($schema['allOf'] as $structure) {
+				if (isset($structure['$ref'])) {
+					$schema += $this->swaggerSchema->getDefintion($structure['$ref']);
+				} elseif (isset($structure['properties'])) {
+					$schema['properties'] += $structure['properties'];
+				}
+			}
+			unset($schema['allOf']);
+			return $this->matchSchema($name, $schema, $body);
+		}
+
         throw new \Exception("Not all cases are defined. Please open an issue about this. Schema: $name");
     }
 
